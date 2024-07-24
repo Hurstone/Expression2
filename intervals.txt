@@ -1,0 +1,96 @@
+@name Intervals
+@persist Timers:table
+@autoupdate
+
+#[
+    
+    ~~ Made by Rush'R ~~
+    
+    DOCUMENTATION
+    =============
+    
+    +------------------------+----------------------------+-----------------+-----------------------------------------------------------+
+    |          Name          |           takes            |     return      |                        description                        |
+    +------------------------+----------------------------+-----------------+-----------------------------------------------------------+
+    | setTimer               | func:function, time:number | timer:string    | execute la fonction "func" apres time milisecondes        |
+    | setTimer               | func:function              | timer:string    | execute la fonction "func" apres 1 miliseconde            |
+    | setInterval            | func:function, time:number | interval:string | execute la fonction "func" toutes les "time" milisecondes |
+    | setInterval            | func:function              | interval:string | execute la fonction "func" toutes les 1 miliseconde       |
+    | timer:stopTimer        |                            |                 | stop le timer                                             |
+    | interval:stopInterval  |                            |                 | stop l'interval                                           |
+    +------------------------+----------------------------+-----------------+-----------------------------------------------------------+
+    
+    EXEMPLE
+    =======
+    
+    @name Demo
+    @persist Inc:number Interval:string
+    
+    #include "Intervals"
+    Inc = 0
+    Interval = setInterval(function () {
+        Inc++
+        print("time: "+Inc)
+        if(Inc >= 10) {
+            Interval:stopInterval()
+        }
+    },1000)
+]#
+
+
+if(first() | dupefinished()) {
+    Timers = table()
+}
+
+function string setTimer(Key:string, Func:function, Time:number) {
+    Timers[Key,function] = Func
+    timer(Key, Time)
+    
+    return Key
+}
+
+
+function string setTimer(Func:function, Time:number) {
+    
+    local Key = randint(0,10000000000000) + "-"
+    
+    return setTimer(Key,Func,Time)
+}
+
+function string setTimer(Func:function) {
+    return setTimer(Func,1)
+}
+
+function string setInterval(Key:string, Func:function, Time:number) {
+    
+    return setTimer(Key, function () {
+        setInterval(Key, Func, Time)
+        Func()
+    } ,Time)
+}
+
+function string setInterval(Func:function, Time:number) {
+    local Key = randint(0,10000000000) + "-"
+    
+    return setInterval(Key, Func, Time)
+}
+
+function string setInterval(Func:function) {
+    return setInterval(Func,1)
+}
+
+function string:stopTimer() {
+    stoptimer(This)
+}
+
+function string:stopInterval() {
+    This:stopTimer()
+}
+
+T = clkName()
+if(Timers:exists(T)) {
+    local F = Timers[T,function]
+    Timers:remove(T)
+    F()
+    exit()
+}

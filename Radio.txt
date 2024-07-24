@@ -1,0 +1,201 @@
+@name Radio
+@inputs End
+@outputs Play:string Volume Start Loop Pause
+
+@persist [Music,Playlist]:array 
+@persist [Follow,Pause]:number 
+@persist Ra:entity
+@persist Name:string
+
+#include "Librairies/Intervals"
+
+#       :::    :::      :::    :::       :::::::::       ::::::::   :::::::::::       ::::::::       ::::    :::       ::::::::::
+#      :+:    :+:      :+:    :+:       :+:    :+:     :+:    :+:      :+:          :+:    :+:      :+:+:   :+:       :+:
+#     +:+    +:+      +:+    +:+       +:+    +:+     +:+             +:+          +:+    +:+      :+:+:+  +:+       +:+
+#    +#++:++#++      +#+    +:+       +#++:++#:      +#++:++#++      +#+          +#+    +:+      +#+ +:+ +#+       +#++:++#
+#   +#+    +#+      +#+    +#+       +#+    +#+            +#+      +#+          +#+    +#+      +#+  +#+#+#       +#+
+#  #+#    #+#      #+#    #+#       #+#    #+#     #+#    #+#      #+#          #+#    #+#      #+#   #+#+#       #+#
+# ###    ###       ########        ###    ###      ########       ###           ########       ###    ####       ##########~
+#
+#Hurstone Radio
+#Librairy by Rush'r
+
+if (first()){
+    Ra = entity():isWeldedTo()
+    Ra:createWire(entity(),"Stream URL","Play")
+    Ra:createWire(entity(),"Play","Start")
+    Ra:createWire(entity(),"Volume","Volume")
+    Ra:createWire(entity(),"Loop Mode","Loop")
+    entity():createWire(Ra,"End","Ended")
+    Ra:createWire(entity(),"Pause","Pause")
+    Ra:noCollideAll(1)
+    Ra:setColor(0,0,0,255)
+    hint("/help to know the different commands",5)
+    Start = 0
+    Music = array()
+    Volume = 1
+    Follow = 0
+    Pause = 0
+    function array shuffle(Arr:array) {
+        local NewArr = array()
+        while(Arr:count() > 0) {
+            local I = randint(1,Arr:count())
+            NewArr:pushString(Arr[I,string])
+            Arr:remove(I)
+        }
+        return NewArr
+    }
+}
+
+event chat(Player:entity, Message:string, Team:number) {
+    if (Player == owner()){
+        LS = Message:explode(" ")
+        
+        if (LS[1, string]:find("/help")){
+            hideChat(1)
+            printColor(vec(19, 26, 82),"============Help Menu============")
+            printColor(vec(255,0,0),"/start (necessary) start the music")
+            printColor(vec(255,0,0),"/p (necessary) add a music to play")
+            printColor(vec(19, 26, 82),"/list print the music list")
+            printColor(vec(19, 26, 82),"/follow the radio follow you around (Toggle on & off)")
+            printColor(vec(19, 26, 82),"/skip skip the current song")
+            printColor(vec(19, 26, 82),"/playlist <PLAYLIST NAME> Create a playlist with the current music list")
+            printColor(vec(19, 26, 82),"/load <PLAYLIST NAME> Load a playlist with a specified name ")
+        }
+        
+        if (LS[1, string]:find("/p")){
+            hideChat(1)
+            Music:pushString(LS[2, string])
+            Play = Music[1, string]
+        }
+        
+        if (LS[1, string]:find("/start")){
+            hideChat(1)
+            Start = !Start
+            if (Start== 0){
+                printColor(vec(19, 26, 82),"Off")
+            }
+            elseif (Start == 1){
+                printColor(vec(19, 26, 82),"On")    
+            }
+        }
+        
+        if (LS[1, string]:find("/follow")){
+            hideChat(1)
+            Follow = !Follow
+            entity():propFreeze(0)
+            Ra:propFreeze(0)
+            if (Follow == 1){
+                printColor(vec(19, 26, 82),"Radio following enabled")
+            }
+            elseif (Follow == 0){
+                printColor(vec(19, 26, 82),"Radio following disabled")
+                entity():propFreeze(1)
+                Ra:propFreeze(1) 
+            }
+        }
+        
+        if (LS[1, string]:find("/list")){
+            hideChat(1)
+            printColor(vec(19, 26, 82),"==================Music List==================")
+            for (I=1,Music:count()){
+                printColor(vec(19+(I*2), 26+(I*2), 82+(I*2)),Music[I, string])
+            }
+        }
+        
+        if (LS[1, string]:find("/pause")){
+            hideChat(1)
+            Pause = !Pause
+            if (Pause == 1){
+                printColor(vec(19, 26, 82),"Paused")
+            }
+            elseif (Pause == 0){
+                printColor(vec(19, 26, 82),"Resumed")    
+            }
+        }
+        
+        if (LS[1, string]:find("/playlist")){
+            if (!fileCanWrite()){
+                printColor(vec(255,0,0),"ERROR IMPOSSIBLE TO WRITE THE FILE")
+            } 
+            Name = LS[2,string]
+            fileWrite("playlist_"+LS[2,string]+".txt","Holy Radio by Hurstone,")
+            for (I=1, Music:count()){
+               fileAppend("playlist_"+LS[2, string]+".txt",Music[I, string]+",")
+            }
+        }
+        
+        if (LS[1, string]:find("/load")){
+            hideChat(1)
+            Name = LS[2, string]
+            fileLoad("playlist_"+LS[2, string]+".txt")
+        }
+        
+        if (LS[1, string]:find("/skip")){
+            hideChat(1)
+            Music:removeString(1)
+            Play = Music[1, string]
+            local DecompPlay = Play:explode("/")
+            local DecompPlay2 = DecompPlay[7, string]:explode(".mp3")
+            printColor(vec(19, 26, 82),"Now playing : "+DecompPlay2[1, string])
+        }
+        if (LS[1, string]:find("/shuffle")){
+            printColor(vec(19, 26, 82),"Playlist shuffled")
+            hideChat(1)
+            Music = shuffle(Music)
+            Play = Music[1, string]
+        }
+    }
+}
+
+event tick() {
+    if (Follow == 1){
+        Target = (owner():pos()+vec(0,0,120) - Ra:pos() - Ra:vel() * 0.1)*Ra:mass()
+        Ra:applyForce(Target) 
+    }
+    if (Follow == 1){
+        if (!owner():isAlive()){
+            Follow = 0
+            Pause = 1
+            printColor(vec(255,0,0),"OWNER IS DEAD DISABLING FOLLOW MODE WILL ACTVIVATE IN 5 SEC")
+            setTimer(function () {
+                Follow = 1
+                Pause = 0
+                Ra:setPos(owner():pos()+vec(0,0,120))
+                entity():setPos(owner():pos()+vec(0,0,120))
+            },5000)    
+        }
+    }
+}
+
+event fileLoaded(FilePath:string, Data:string) {
+    if (FilePath == "playlist_"+Name+".txt"){
+        printColor(vec(19, 26, 82),FilePath+" is loading..")
+        Playlist = Data:explode(",")
+        Playlist:remove(1)
+        for (H=1, Playlist:count()){
+            if (Playlist[H, string]:find(Name)){
+                Playlist:remove(H)    
+            }    
+        }
+        for (I=1, Playlist:count()){
+            Music:pushString(Playlist[I, string])    
+        }
+        Play = Music[1, string]
+        if (Play != ""){
+            printColor(vec(19, 26, 82),FilePath+" is loaded !")    
+        }
+    }
+}
+
+if (End == 1){
+        Music:removeString(1)
+        printColor(vec(19, 26, 82),"Music endded")
+        Start = 0
+        if (Music:count()>=1){
+                setTimer(function () {
+                        Play = Music[1, string] 
+                        Start = 1
+                },1000)
+        }
+}
