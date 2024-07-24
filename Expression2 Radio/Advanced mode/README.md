@@ -25,7 +25,7 @@ And it should be good
 
 ## Spotdl usage 
 
-you just have to type ```spotdl <SPOTIFY PLAYLIST LINK>```
+you just have to type ```spotdl <SPOTIFY PLAYLIST LINK<```
 
 and you're playlist should be downloading 
 
@@ -82,9 +82,9 @@ Run the script and it should start making the file (the process might be a bit l
 
 ## Puting the new created file to the e2file folder
 
-First rename the file to "playlist_<WHATEVER YOU WANT>" then put it in the e2file folder (Steam\steamapps\common\GarrysMod\garrysmod\data\e2files)
+First rename the file to "playlist_<WHATEVER YOU WANT<" then put it in the e2file folder (Steam\steamapps\common\GarrysMod\garrysmod\data\e2files)
 
-to load the playlist you'll have to type ```/load <WHAT YOU PUT IN WHATEVER YOU WANT>```
+to load the playlist you'll have to type ```/load <WHAT YOU PUT IN WHATEVER YOU WANT<```
 
 And everything should work !
 (if not good luck)
