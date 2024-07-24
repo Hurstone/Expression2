@@ -14,7 +14,7 @@ And you're basicly done !
 ## Command list 
 
 (Visible if you type /help in game)
-
+```
 /start (necessary) start the music")
 /p <MUSIC LINK>(necessary) add a music to play")
 /list print the music list")
@@ -22,7 +22,7 @@ And you're basicly done !
 /skip skip the current song")
 /playlist <PLAYLIST NAME> Create a playlist with the current music list")
 /load <PLAYLIST NAME> Load a playlist with a specified name ")
-
+```
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
