@@ -88,3 +88,5 @@ to load the playlist you'll have to type ```/load <WHAT YOU PUT IN WHATEVER YOU 
 
 And everything should work !
 (if not good luck)
+
+if the dropbox link is too long for the gmod chat you can use the ranme script that will only keep the music name and remove the author name 
