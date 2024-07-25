@@ -24,6 +24,10 @@ And you're basicly done !
 /load <PLAYLIST NAME> Load a playlist with a specified name ")
 ```
 
+## Rename.py Usage
+
+If the dropbox sharelink is too long for the gmod chat you can run the rename.py script in your folder with your .mp3 file
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
