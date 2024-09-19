@@ -129,6 +129,8 @@ event chat(Player:entity, Message:string, Team:number) {
             hideChat(1)
             Name = LS[2, string]
             fileLoad("playlist_"+LS[2, string]+".txt")
+            printColor(vec(19, 26, 82),"Loading" + " " +LS[2,string])
+
         }
         
         if (LS[1, string]:find("/skip")){
