@@ -1,0 +1,79 @@
+@name Home
+@persist [Seat]:entity
+@persist [Return]:vector
+@persist [LS]:array
+@persist [X,Y,Z]:number
+
+function tp(Pos:vector) {
+    Return = owner():pos()    
+    Seat = seatSpawn("",entity():pos(),owner():angles(),1)
+    Seat:noCollideAll(1)
+    Seat:setColor(0,0,0,0)
+    Seat:setPos(owner():pos())
+    timer(0.1,function(){
+        Seat:use()                        
+        Seat:setPos(Pos)
+        Seat:ejectPod()
+        Seat:propDelete()         
+    })
+}
+
+event chat(Player:entity, Message:string, Team:number) {
+    if (Player == owner()){
+        LS = Message:explode(" ")
+        if (LS[1, string]:find("/tp")){
+            hideChat(1)
+            Target = findPlayerByName(LS[2, string])
+            if (!Target:isValid()){
+                printColor(vec(255,0,0),"Sorry "+Target:name()+" is not a valid target")    
+            }
+            else {
+                printColor(vec(19, 26, 82),"Teleported to "+Target:name())
+            }
+            tp(Target:pos()+vec(50,50,0))
+        }
+        
+        if (LS[1, string]:find("/return")){
+            hideChat(1)
+            tp(Return)
+        } 
+        
+        if (LS[1, string]:find("/sethome")){
+            hideChat(1)
+            fileWrite("home_"+_MAP+"_"+LS[2, string]+".txt",owner():pos():toString())
+            timer(0.1, function(){
+                fileAppend("list_"+_MAP+".txt",LS[2, string]+",")      
+            })
+        }
+        
+        if (LS[1, string]:find("/home")){
+            hideChat(1)
+            fileLoad("home_"+_MAP+"_"+LS[2, string]+".txt")
+            printColor(vec(19, 26, 82),"Going to : "+LS[2, string])
+        }
+        
+        if (LS[1, string]:find("/list")){
+            hideChat(1)
+            fileLoad("list_"+_MAP+".txt")
+        }
+    }  
+}
+
+event fileLoaded(FilePath:string, Data:string) {
+    if (FilePath == "home_"+_MAP+"_"+LS[2, string]+".txt"){
+        Clean = Data:replace("vec(", "")
+        Clean = Clean:replace(")", "")
+        Parts = Clean:explode(",")
+        X = Parts[1, string]:toNumber()
+        Y = Parts[2, string]:toNumber()
+        Z = Parts[3, string]:toNumber()
+        Recomp = vec(X,Y,Z)
+        tp(Recomp)    
+    }
+    if (FilePath == "list_"+_MAP+".txt"){
+        List = Data:explode(",")
+        for(I=1,List:count()){
+            print(List[I, string]) 
+        }
+    }
+}
