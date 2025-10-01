@@ -1,0 +1,113 @@
+@name Punisher
+@inputs [Turret]:entity
+@outputs Shoot
+@persist [Bitch,Props]:entity
+
+
+function dmgcore(Target:entity){
+    Target:takeDamage(100,owner())   
+}
+
+function kill(Target:entity){
+    if (!Target:inGodMode()){
+        for (I = 1, 10){
+            timer(0.5,function(){
+                Props = propSpawn("models/hunter/blocks/cube1x1x1.mdl",Target:pos()+vec(0,0,50),ang(0.000,0.000,0.000),1)
+                Props:setColor(0,0,0,0)
+                Props:ignite(10000)
+                if (I == 10){
+                    timer(5,function(){
+                        propDeleteAll()
+                    })    
+                }   
+            })  
+        }
+    }
+}
+
+function shoot(Target:entity){
+    timer(3,function(){
+        Shoot = 0
+    })
+    if (!Target:inGodMode()){
+        Turret:setPos(Target:pos())
+        Shoot = 1
+        if (!Target:isAlive()){
+            Shoot = 0
+            Turret:setPos(entity():pos())    
+        }
+            else {
+            Turret:setPos(Target:pos())    
+            }
+        
+        }
+    else {
+        printColor(vec(0,0,0),"Player is in godmode")    
+    }
+}
+
+function inSpawn(Target:entity){
+    if (_MAP != "gm_random_havstrand"){
+        printColor(vec(255,0,0),"SERVER MAP SPAWN PROTECTION ISNT gm_random_havstrand SPAWN PROTECTION INVALID")    
+    }
+    else {
+        Inspawn = !inrange(Target:pos(),vec(3337.03,-544.929,-13461.8),vec(5547.46,590.969,-13086.9))
+        return Inspawn
+    }
+}
+
+function disk(Target:entity){
+    Disk = propSpawn("models/hunter/tubes/circle2x2.mdl",Target:pos()+vec(0,0,300),Target:angles(),0)
+    Disk:setMass(50000)
+    Disk:setColor(0,0,0,0)
+    Disk:applyForce((Target:pos() - Disk:pos())*1000000)
+    timer(0.4,function(){
+        propDeleteAll()   
+    })
+}
+
+event chat(Player:entity, Message:string, Team:number) {
+    if (Player == owner()){
+        LS = Message:explode(" ")
+        Bitch = findPlayerByName(LS[2, string])
+        
+        if (LS[1, string]:find("/kill")){
+            hideChat(1)
+            kill(Bitch)             
+        }
+        if (LS[1, string]:find("/shoot")){
+            hideChat(1)
+            shoot(Bitch)
+        }
+        if (LS[1, string]:find("/disk")){
+            hideChat(1)
+            disk(Bitch)
+        }
+        if (LS[1, string]:find("/ban")){
+            hideChat(1)
+            Softban = 1
+            printColor(vec(255,0,0),"Targeted "+Bitch:name())
+        }
+        if (LS[1, string]:find("/stop")){
+            hideChat(1)
+            Softban = 0
+        }
+        if (LS[1, string]:find("/instant")){
+            hideChat(1)
+            dmgcore(Bitch)    
+        }
+    }   
+}
+
+event tick(){
+    if (Bitch:isAlive()){
+        print("Alive")
+        if (Softban == 1){
+            print("Enabled")
+            if (inSpawn(Bitch)){
+                print("not in spawn")
+                shoot(Bitch)
+            }
+        }    
+    }
+}
