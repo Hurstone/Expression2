@@ -105,7 +105,6 @@ event tick(){
         if (Softban == 1){
             print("Enabled")
             if (inSpawn(Bitch)){
-                print("not in spawn")
                 shoot(Bitch)
             }
         }    
